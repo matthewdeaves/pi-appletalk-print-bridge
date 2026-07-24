@@ -23,10 +23,13 @@ into the Brother's native language over a raw `socket://…:9100` connection.
 
 ## Why this exists / what's non-obvious
 
-- **Debian 13 ships AppleTalk again.** Netatalk 3.x dropped AppleTalk/PAP, but
-  Debian 13 packages the netatalk **4.2.x** AppleTalk suite (`atalkd`, `papd`,
-  …) separately, and the stock Pi kernel (6.18) has DDP (`CONFIG_ATALK=m`). So
-  you do **not** need to build old Netatalk 2.x from source.
+- **You don't need to build old Netatalk from source.** Netatalk **3.x** removed
+  AppleTalk support (it became AFP-over-TCP file sharing only) — which is why
+  older guides tell you to compile Netatalk **2.x** by hand. But Netatalk **4.x**
+  brought the AppleTalk daemons back, and Debian 13 packages them as ready-to-
+  install `atalkd` / `papd` packages. Combined with the stock Pi kernel's DDP
+  support (`CONFIG_ATALK=m` in 6.18), the whole stack installs straight from
+  `apt`.
 - **papd 4.2.3's native CUPS submission is broken** — it takes the PAP job and
   silently drops it. The trick is to make papd **pipe the job to `lp`** instead.
   That single detail is the difference between "works" and "mysteriously prints

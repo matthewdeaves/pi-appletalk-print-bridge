@@ -1,0 +1,16 @@
+# papd.conf - AppleTalk PAP -> CUPS bridge for classic Mac OS
+# Rendered from this template by setup.sh (@PAP_NAME@ / @QUEUE_NAME@ substituted).
+#
+# Publishes the CUPS queue '@QUEUE_NAME@' as a PostScript LaserWriter over
+# AppleTalk. Classic Macs print with LaserWriter 8 (PostScript); the received
+# PostScript is piped to `lp`, and CUPS rasterises it:
+#     PostScript -> Ghostscript -> CUPS raster -> rastertobrlaser -> printer.
+#
+# NB1: the pipe form ':pr=|/usr/bin/lp ...:' is used DELIBERATELY. papd 4.2.3's
+#      *native* CUPS submission (a bare ':pr=@QUEUE_NAME@:') accepts the PAP job
+#      but silently fails to spool it. Piping to `lp` is the reliable path.
+# NB2: do NOT add ':co=raw:'. A PCL-only printer (e.g. Brother HL-Lxxxx) cannot
+#      interpret PostScript, so CUPS MUST run its PS->raster->brlaser filters.
+@PAP_NAME@:\
+	:pr=|/usr/bin/lp -d @QUEUE_NAME@ -t AppleTalk:\
+	:op=root:

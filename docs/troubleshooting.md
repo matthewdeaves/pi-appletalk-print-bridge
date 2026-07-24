@@ -1,6 +1,6 @@
 # Troubleshooting
 
-## The big one: papd accepts the job but nothing prints
+## papd accepts the job but nothing prints
 
 **Symptom:** the Mac spools the job, papd logs `child N for "..."` then
 `child N done`, but no CUPS job is created and no page comes out.

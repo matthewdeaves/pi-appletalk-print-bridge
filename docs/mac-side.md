@@ -32,10 +32,10 @@ enabled in the Extensions Manager.
    - plain **LaserWriter** — also works (Level 1, 300 dpi) if that's all you have
    - Avoid colour/specialised PPDs.
 
-   > Why generic: the Brother isn't really a PostScript printer — papd is
-   > impersonating a LaserWriter — so a model-specific PPD would advertise
-   > features the virtual printer doesn't have. A generic PPD keeps the emitted
-   > PostScript clean and standard.
+   > Why generic: the Brother isn't a PostScript printer — papd presents the
+   > queue as a LaserWriter — so a model-specific PPD would advertise features
+   > the virtual printer doesn't have. A generic PPD keeps the emitted PostScript
+   > clean and standard.
 5. Close the Chooser. A **desktop printer icon** appears.
 6. Print from any app (SimpleText is a good first test).
 

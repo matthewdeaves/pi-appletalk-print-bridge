@@ -1,12 +1,11 @@
 # pi-appletalk-print-bridge
 
-Turn a Raspberry Pi into an **AppleTalk print bridge** so vintage Macs running
-**classic Mac OS** (System 7.x, Mac OS 8/9) can print to a modern
-**network laser printer** that only speaks PCL — no PostScript, no LocalTalk, no
-serial hacks.
+Use a Raspberry Pi as an **AppleTalk print bridge** so machines running
+**classic Mac OS** (System 7.x, Mac OS 8/9) can print to a **network laser
+printer that only speaks PCL** (no PostScript).
 
-Built and verified with a **Brother HL-L2360D** (PCL6, port 9100) and two Power
-Macs (**6200 / System 7.5.3** and **6400 / System 7.6.1**), on a Pi 3A+ running
+Verified with a **Brother HL-L2360D** (PCL6, port 9100) and two Power Macs
+(**6200 / System 7.5.3** and **6400 / System 7.6.1**), on a Pi 3A+ running
 **Raspberry Pi OS / Debian 13 (trixie)**.
 
 ```
@@ -17,28 +16,26 @@ Macs (**6200 / System 7.5.3** and **6400 / System 7.6.1**), on a Pi 3A+ running
 └───────────────┘                   └───────────────────────────────┘  └────────┘
 ```
 
-The Mac thinks it's talking to a genuine PostScript **LaserWriter**. papd hands
-the PostScript to CUPS, **Ghostscript** rasterises it, and **brlaser** turns that
-into the Brother's native language over a raw `socket://…:9100` connection.
+To the Mac, the bridge presents as a PostScript **LaserWriter**. papd passes the
+PostScript to CUPS, **Ghostscript** rasterises it, and **brlaser** converts that
+to the printer's raster format, sent over a raw `socket://…:9100` connection.
 
-## Why this exists / what's non-obvious
+## Notes and gotchas
 
-- **You don't need to build old Netatalk from source.** Netatalk **3.x** removed
-  AppleTalk support (it became AFP-over-TCP file sharing only) — which is why
-  older guides tell you to compile Netatalk **2.x** by hand. But Netatalk **4.x**
-  brought the AppleTalk daemons back, and Debian 13 packages them as ready-to-
-  install `atalkd` / `papd` packages. Combined with the stock Pi kernel's DDP
-  support (`CONFIG_ATALK=m` in 6.18), the whole stack installs straight from
-  `apt`.
-- **papd 4.2.3's native CUPS submission is broken** — it takes the PAP job and
-  silently drops it. The trick is to make papd **pipe the job to `lp`** instead.
-  That single detail is the difference between "works" and "mysteriously prints
-  nothing." (See [docs/troubleshooting.md](docs/troubleshooting.md).)
-- **No `raw`** — the printer is PCL-only, so CUPS *must* do the PostScript→PCL
-  conversion; a raw queue would send it PostScript it can't understand.
-- **AppleTalk happily rode over the Pi's Wi-Fi** to a wired Mac (the router
-  bridges EtherTalk frames), so a Pi with no Ethernet port still works — with a
-  caveat, see troubleshooting.
+- **No source build of Netatalk is needed.** Netatalk **3.x** removed AppleTalk
+  support (AFP-over-TCP file sharing only), which is why older guides have you
+  compile Netatalk **2.x** by hand. Netatalk **4.x** restored the AppleTalk
+  daemons, and Debian 13 packages them as `atalkd` / `papd`. With the stock Pi
+  kernel's DDP support (`CONFIG_ATALK=m` in 6.18), the stack installs from `apt`.
+- **papd 4.2.3's native CUPS submission does not work** — it accepts the PAP job
+  but never spools it. The working config pipes the job to `lp` instead
+  (`:pr=|/usr/bin/lp -d <queue>:`). See
+  [docs/troubleshooting.md](docs/troubleshooting.md).
+- **The queue must not be `raw`.** The printer is PCL-only, so CUPS must do the
+  PostScript→PCL conversion; a raw queue would forward PostScript it can't read.
+- **AppleTalk works over Wi-Fi** if the router bridges EtherTalk (raw, non-IP
+  Ethernet) frames between the wireless and wired segments, so a Pi with no
+  Ethernet port can work. Some access points isolate Wi-Fi — see troubleshooting.
 
 ## Quick start
 
@@ -99,7 +96,7 @@ Everything is boot-persistent. Roll it all back with **`./uninstall.sh`**.
 ## Credits
 
 `brlaser` by Peter De Wachter. AppleTalk via the
-[Netatalk](https://netatalk.io) project. Built with a lot of `strace`.
+[Netatalk](https://netatalk.io) project.
 
 ## License
 
